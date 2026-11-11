@@ -1935,6 +1935,15 @@ html&gt;body{padding:0}&lt;/style&gt;
 #dive-preview .locker-reminder p {
   margin: 3px 0 0;
 }
+
+/* Use the iframe document as the single scroll surface on narrow screens. */
+@media (max-width: 767px) {
+  #dive-preview .device { height: auto; overflow: visible; }
+  #dive-preview .app-head { border-radius: 27px 27px 0 0; }
+  #dive-preview .content { flex: none; overflow: visible; overscroll-behavior: auto; }
+  #dive-preview .veil { position: fixed; inset: 0; }
+  html:has(#dive-preview .veil:not([hidden])) { overflow: hidden; }
+}
 #dive-preview .copy-status{margin:0}#dive-preview .copy-status:not(:empty){margin-top:8px}
 @media(max-width:480px){#dive-preview .switches{padding:10px 14px 0;margin-bottom:16px}}&lt;/style&gt;
 &lt;div class=&quot;switches&quot; aria-label=&quot;목업 화면 선택&quot;&gt;&lt;button data-view=&quot;main&quot; aria-pressed=&quot;true&quot;&gt;메인&lt;/button&gt;&lt;button data-view=&quot;expanded&quot; aria-pressed=&quot;false&quot;&gt;목록 펼침&lt;/button&gt;&lt;button data-view=&quot;pool&quot; aria-pressed=&quot;false&quot;&gt;풀장 상세&lt;/button&gt;&lt;/div&gt;
@@ -1944,7 +1953,7 @@ html&gt;body{padding:0}&lt;/style&gt;
 &lt;section class=&quot;section&quot;&gt;
   &lt;div class=&quot;section-title&quot;&gt;&lt;span class=&quot;icon&quot; data-glyph=&quot;🎒&quot; aria-hidden=&quot;true&quot;&gt;&lt;/span&gt;준비물&lt;/div&gt;
   &lt;div class=&quot;prep&quot;&gt;
-    &lt;div&gt;&lt;span class=&quot;icon&quot; data-glyph=&quot;🩱&quot; aria-hidden=&quot;true&quot;&gt;&lt;/span&gt;수영복&lt;/div&gt;
+    &lt;div&gt;&lt;span class=&quot;icon&quot; data-glyph=&quot;🩱&quot; aria-hidden=&quot;true&quot;&gt;&lt;/span&gt;개인 수영복&lt;/div&gt;
     &lt;div&gt;
       &lt;svg class=&quot;swim-cap-icon&quot; viewBox=&quot;0 0 36 36&quot; fill=&quot;none&quot; aria-hidden=&quot;true&quot; focusable=&quot;false&quot;&gt;
         &lt;path d=&quot;M4 23c0-8.4 6.2-14 14.3-14C26.1 9 32 14.6 32 22v2.5a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V23Z&quot; fill=&quot;currentColor&quot; fill-opacity=&quot;.18&quot; stroke=&quot;currentColor&quot; stroke-width=&quot;2&quot;/&gt;
@@ -1980,7 +1989,7 @@ const row=(a,b)=&gt;`&lt;div class=&quot;info&quot;&gt;&lt;span&gt;${a}&lt;/span
 function expand(type,on){const b=q(`[data-accordion=&quot;${type}&quot;]`);b.setAttribute(&#x27;aria-expanded&#x27;,on);b.querySelector(&#x27;.action&#x27;).textContent=on?&#x27;접기&#x27;:&#x27;펼치기&#x27;;q(&#x27;#dive-&#x27;+type).hidden=!on;}
 function feeSummary(p){return p.fee.length===1?`평일·주말 ${p.fee[0][1]}`:`평일 ${p.fee[0][1]} · ${p.fee[1][0].includes(&#x27;공휴일&#x27;)?&#x27;주말·공휴일&#x27;:&#x27;주말&#x27;} ${p.fee[1][1]}`;}
 q(&#x27;#dive-pools&#x27;).innerHTML=pools.map((p,i)=&gt;`&lt;button class=&quot;item pool-item&quot; data-pool=&quot;${i}&quot;&gt;&lt;span&gt;&lt;strong&gt;${p.shortName}&lt;/strong&gt;&lt;small&gt;${p.region}${p.depth!==&#x27;확인 필요&#x27;?&#x27; · 수심 &#x27;+p.depth:&#x27;&#x27;}&lt;/small&gt;&lt;span class=&quot;pool-price&quot;&gt;${feeSummary(p)}&lt;/span&gt;&lt;/span&gt;&lt;/button&gt;`).join(&#x27;&#x27;);
-function close(){q(&#x27;.veil&#x27;).hidden=true;q(&#x27;.content&#x27;).inert=false;q(&#x27;.app-head&#x27;).inert=false;previous?.focus();}
+function close(){q(&#x27;.veil&#x27;).hidden=true;q(&#x27;.content&#x27;).inert=false;q(&#x27;.app-head&#x27;).inert=false;previous?.focus({ preventScroll: true });}
 function feeTable(p){const extra=p.fee.filter(x=&gt;x[0]===&#x27;이용시간 초과&#x27;);return `&lt;table class=&quot;fee-table&quot;&gt;&lt;thead&gt;&lt;tr&gt;&lt;th&gt;권종&lt;/th&gt;&lt;th&gt;이용시간&lt;/th&gt;&lt;th&gt;가격&lt;/th&gt;&lt;/tr&gt;&lt;/thead&gt;&lt;tbody&gt;${p.fee.filter(x=&gt;x[0]!==&#x27;이용시간 초과&#x27;).map(x=&gt;{const parts=x[0].split(&#x27; · &#x27;);return `&lt;tr&gt;&lt;td&gt;${parts[0]}&lt;/td&gt;&lt;td&gt;${parts[1]||&#x27;회차 참조&#x27;}&lt;/td&gt;&lt;td&gt;${x[1]}&lt;/td&gt;&lt;/tr&gt;`}).join(&#x27;&#x27;)}&lt;/tbody&gt;&lt;/table&gt;${extra.map(x=&gt;`&lt;p class=&quot;fee-extra&quot;&gt;초과 요금 · ${x[1]}&lt;/p&gt;`).join(&#x27;&#x27;)}`;}
 function poolDetail(p,i){
 return `&lt;div class=&quot;pill&quot;&gt;${p.region}${p.depth===&#x27;확인 필요&#x27;?&#x27; · 수심 확인 필요&#x27;:&#x27; · 수심 &#x27;+p.depth}&lt;/div&gt;&lt;p class=&quot;formal-name&quot;&gt;${p.name}&lt;/p&gt;&lt;section class=&quot;visit-summary&quot; aria-label=&quot;방문 핵심 요약&quot;&gt;${row(&#x27;입장 방식&#x27;,p.bookingShort)}${row(&#x27;기본 입장료&#x27;,feeSummary(p))}${row(&#x27;이용시간&#x27;,p.duration)}${row(&#x27;주차&#x27;,p.parkingShort)}&lt;/section&gt;${p.closed?`&lt;div class=&quot;notice important&quot;&gt;&lt;strong&gt;${p.closed}&lt;/strong&gt;&lt;/div&gt;`:&#x27;&#x27;}${p.booking ? `&lt;p class=&quot;booking-rule&quot;&gt;${p.booking}&lt;/p&gt;` : &#x27;&#x27;}${p.eligibility?`&lt;div class=&quot;notice important&quot;&gt;&lt;strong&gt;이용 자격&lt;/strong&gt;&lt;p&gt;${p.eligibility}&lt;/p&gt;&lt;/div&gt;`:&#x27;&#x27;}&lt;h3&gt;주소 · 길찾기&lt;/h3&gt;&lt;p class=&quot;address&quot;&gt;${p.address}&lt;/p&gt;${p.addressNote?`&lt;p&gt;${p.addressNote}&lt;/p&gt;`:&#x27;&#x27;}&lt;div class=&quot;map-actions&quot;&gt;&lt;button type=&quot;button&quot; data-copy-address&gt;주소 복사&lt;/button&gt;&lt;/div&gt;&lt;p class=&quot;copy-status&quot; role=&quot;status&quot;&gt;&lt;/p&gt;&lt;div class=&quot;map-actions&quot;&gt;&lt;a href=&quot;${p.mapLinks.naver.replaceAll(&#x27;&amp;&#x27;,&#x27;&amp;amp;&#x27;)}&quot; target=&quot;_blank&quot; rel=&quot;noopener noreferrer&quot; aria-label=&quot;${p.shortName} 네이버지도 새 창에서 열기&quot;&gt;네이버지도&lt;/a&gt;&lt;a href=&quot;${p.mapLinks.kakao}&quot; target=&quot;_blank&quot; rel=&quot;noopener noreferrer&quot; aria-label=&quot;${p.shortName} 카카오맵 새 창에서 열기&quot;&gt;카카오맵&lt;/a&gt;&lt;/div&gt;&lt;h3&gt;운영시간 · 이용 회차&lt;/h3&gt;${p.hourNote?`&lt;div class=&quot;notice&quot;&gt;${p.hourNote}&lt;/div&gt;`:&#x27;&#x27;}${p.hours.map(x=&gt;row(...x)).join(&#x27;&#x27;)}&lt;h3&gt;${p.rental ? &#x27;입장료 · 대여료&#x27; : &#x27;입장료&#x27;}&lt;/h3&gt;${feeTable(p)}${p.rental ? row(&#x27;슈트 대여료&#x27;,p.rental) : &#x27;&#x27;}&lt;p&gt;강습비는 시설 입장료와 별도입니다.&lt;/p&gt;&lt;h3&gt;주차 상세&lt;/h3&gt;${p.parking.map(x=&gt;row(...x)).join(&#x27;&#x27;)}&lt;details class=&quot;entry-details&quot;&gt;&lt;summary&gt;입장 절차 · 상세 안내&lt;/summary&gt;${p.steps?`&lt;ol class=&quot;entry-steps&quot;&gt;${p.steps.map(t=&gt;`&lt;li&gt;${t}&lt;/li&gt;`).join(&#x27;&#x27;)}&lt;/ol&gt;`:&#x27;&#x27;}${p.entryNote?`&lt;p&gt;${p.entryNote}&lt;/p&gt;`:&#x27;&#x27;}&lt;/details&gt;`;}
@@ -2017,7 +2026,7 @@ q(&#x27;.sheet-body&#x27;).innerHTML=poolDetail(p,i);
 const copyButton = q(&#x27;[data-copy-address]&#x27;);
 const copyStatus = q(&#x27;.copy-status&#x27;);
 copyButton.onclick = () =&gt; copyAddress(p.address, copyButton, copyStatus);
-q(&#x27;.veil&#x27;).hidden=false;q(&#x27;.content&#x27;).inert=true;q(&#x27;.app-head&#x27;).inert=true;q(&#x27;.sheet-body&#x27;).scrollTop=0;q(&#x27;.close&#x27;).focus();}
+q(&#x27;.veil&#x27;).hidden=false;q(&#x27;.content&#x27;).inert=true;q(&#x27;.app-head&#x27;).inert=true;q(&#x27;.sheet-body&#x27;).scrollTop=0;q(&#x27;.close&#x27;).focus({ preventScroll: true });}
 qa(&#x27;[data-accordion]&#x27;).forEach(b=&gt;b.onclick=()=&gt;expand(b.dataset.accordion,b.getAttribute(&#x27;aria-expanded&#x27;)!==&#x27;true&#x27;));
 qa(&#x27;[data-pool]&#x27;).forEach(b=&gt;b.onclick=()=&gt;open(&#x27;pool&#x27;,+b.dataset.pool));q(&#x27;.close&#x27;).onclick=close;q(&#x27;.veil&#x27;).onclick=e=&gt;{if(e.target===q(&#x27;.veil&#x27;))close()};root.addEventListener(&#x27;keydown&#x27;,e=&gt;{if(!q(&#x27;.veil&#x27;).hidden&amp;&amp;e.key===&#x27;Escape&#x27;)close();if(!q(&#x27;.veil&#x27;).hidden&amp;&amp;e.key===&#x27;Tab&#x27;){const nodes=Array.from(q(&#x27;.sheet&#x27;).querySelectorAll(&#x27;button:not(:disabled),a[href],summary&#x27;)).filter(n=&gt;n.getClientRects().length);const first=nodes[0],last=nodes[nodes.length-1];if(e.shiftKey&amp;&amp;document.activeElement===first){e.preventDefault();last.focus()}else if(!e.shiftKey&amp;&amp;document.activeElement===last){e.preventDefault();first.focus()}}});
 qa(&#x27;[data-view]&#x27;).forEach(b=&gt;b.onclick=()=&gt;{close();qa(&#x27;[data-view]&#x27;).forEach(x=&gt;x.setAttribute(&#x27;aria-pressed&#x27;,x===b));const v=b.dataset.view;expand(&#x27;pools&#x27;,v!==&#x27;main&#x27;);if(v===&#x27;pool&#x27;)open(&#x27;pool&#x27;,0)});
