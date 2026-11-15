@@ -57,6 +57,24 @@
     .install-toolbar { display: none; }
   }
 </style>
+<style>
+@media (max-width: 767px) {
+  body {
+    height: 100vh;
+    height: 100dvh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+  .install-toolbar { flex: none; }
+  #codex-visualization {
+    /* Keep the frame within the visible screen even when preview sizing reports a taller document. */
+    flex: 1 1 0;
+    height: 0 !important;
+    min-height: 0;
+  }
+}
+</style>
 </head>
 <body>
 <div id="install-toolbar" class="install-toolbar">
@@ -1942,6 +1960,9 @@ html&gt;body{padding:0}&lt;/style&gt;
   #dive-preview .app-head { border-radius: 27px 27px 0 0; }
   #dive-preview .content { flex: none; overflow: visible; overscroll-behavior: auto; }
   #dive-preview .veil { position: fixed; inset: 0; }
+  #dive-preview .sheet { max-height: calc(100% - 12px); overflow: hidden; }
+  #dive-preview .sheet-body { flex: 1 1 auto; touch-action: pan-y; }
+
   html:has(#dive-preview .veil:not([hidden])) { overflow: hidden; }
 }
 #dive-preview .copy-status{margin:0}#dive-preview .copy-status:not(:empty){margin-top:8px}
